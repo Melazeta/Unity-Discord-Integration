@@ -9,6 +9,7 @@ public class DiscordTest : MonoBehaviour
 {
     public Text errorUi;
     public InputField detailsInput;
+    public RawImage avatarImage;
 
     [SerializeReference]
     Discord.Discord discord;
@@ -25,6 +26,7 @@ public class DiscordTest : MonoBehaviour
         LogDiscordUser();
 
         discord.GetUserManager().OnCurrentUserUpdate += LogDiscordUser;
+        discord.GetUserManager().OnCurrentUserUpdate += FetchImage;
     }
 
     private void Update()
@@ -48,6 +50,28 @@ public class DiscordTest : MonoBehaviour
         {
             Debug.Log("discord user not ready");
         }
+    }
+
+    private void FetchImage()
+    {
+        var user = discord.GetUserManager().GetCurrentUser();
+        discord.GetImageManager().Fetch(
+            new ImageHandle()
+            {
+                Id = user.Id,
+                Size = 512,
+            },
+            refresh: false,
+            (res, handle) =>
+            {
+                if (res == Result.Ok)
+                {
+                    var texture = discord.GetImageManager().GetTexture(handle);
+                    avatarImage.texture = texture;
+                }
+            }
+        );
+
     }
 
     public void UpdateActivity()
