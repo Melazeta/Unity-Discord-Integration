@@ -99,4 +99,69 @@ public class DiscordTest : MonoBehaviour
                 errorUi.text = "error clearing activity: " + res;
         });
     }
+
+    public Lobby? lobby;
+
+    public void CreateLobby()
+    {
+        LobbyTransaction transaction = discord.GetLobbyManager().GetLobbyCreateTransaction();
+
+        transaction.SetCapacity(6);
+        transaction.SetType(LobbyType.Public);
+        transaction.SetMetadata("hello", "world");
+
+        discord.GetLobbyManager().CreateLobby(transaction, (Result result, ref Lobby lobby) =>
+        {
+            if (result != Result.Ok)
+            {
+                Debug.LogError("create lobby failed: " + result);
+                return;
+            }
+
+            this.lobby = lobby;
+
+            Debug.Log("create lobby success, id: " + lobby.Id);
+        });
+    }
+
+    public void UpdateLobby()
+    {
+        if (lobby == null)
+        {
+            Debug.Log("no lobby to update");
+            return;
+        }
+
+        LobbyTransaction transaction = discord.GetLobbyManager().GetLobbyUpdateTransaction(lobby.Value.Id);
+        transaction.SetCapacity(5);
+
+        discord.GetLobbyManager().UpdateLobby(lobby.Value.Id, transaction, result =>
+        {
+            if (result != Result.Ok)
+                Debug.LogError("update lobby failed: " + result);
+            else
+                Debug.Log("update lobby success");
+        });
+    }
+
+    public void DeleteLobby()
+    {
+        if (lobby == null)
+        {
+            Debug.Log("no lobby to delete");
+            return;
+        }
+
+        discord.GetLobbyManager().DeleteLobby(lobby.Value.Id, result =>
+        {
+            if (result != Result.Ok)
+            {
+                Debug.LogError("delete lobby failed: " + result);
+                return;
+            }
+
+            Debug.Log("delete lobby success");
+            lobby = null;
+        });
+    }
 }
