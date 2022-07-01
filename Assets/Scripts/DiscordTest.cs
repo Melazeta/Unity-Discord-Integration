@@ -164,4 +164,47 @@ public class DiscordTest : MonoBehaviour
             lobby = null;
         });
     }
+
+    public void ConnectVoiceToLobby()
+    {
+        if (lobby == null)
+        {
+            Debug.Log("no lobby to connect voice");
+            return;
+        }
+
+        discord.GetLobbyManager().ConnectVoice(lobby.Value.Id, res =>
+        {
+            if (res == Result.Ok)
+                Debug.Log("voice connected");
+            else
+                Debug.LogError("voice connection failed: " + res);
+        });
+    }
+
+    public void DisconnectVoiceFromLobby()
+    {
+        if (lobby == null)
+        {
+            Debug.Log("no lobby to disconnect voice");
+            return;
+        }
+
+        discord.GetLobbyManager().DisconnectVoice(lobby.Value.Id, res =>
+        {
+            if (res == Result.Ok)
+                Debug.Log("voice disconnected");
+            else
+                Debug.LogError("voice disconnection failed: " + res);
+        });
+    }
+
+    public void OpenVoiceOverlay()
+    {
+        discord.GetOverlayManager().OpenVoiceSettings(res =>
+        {
+            if (res != Result.Ok)
+                Debug.LogError("open voice settings failed: " + res);
+        });
+    }
 }
