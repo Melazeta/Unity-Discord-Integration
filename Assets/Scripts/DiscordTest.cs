@@ -2,6 +2,7 @@ using Discord;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -97,6 +98,22 @@ public class DiscordTest : MonoBehaviour
                 Name = "The Name",  // non so cosa sia
                 Details = detailsInput.text,  // seconda riga
                 State = "could this be a state?",  // terza riga
+
+                Party = new ActivityParty()  // N.B. necessario per invitare amici a joinare
+                {
+                    Id = "42",
+                    Size = new PartySize()
+                    {
+                        CurrentSize = 1,
+                        MaxSize = 4,
+                    },
+                },
+                Secrets = new ActivitySecrets()  // N.B. necessario per invitare amici a joinare
+                {
+                    Join = "42424242424242424242",
+                    //Match = "42",
+                    //Spectate = "42",
+                }
             },
             res =>
             {
@@ -216,10 +233,33 @@ public class DiscordTest : MonoBehaviour
 
     public void OpenVoiceOverlay()
     {
+        if (!discord.GetOverlayManager().IsEnabled())
+        {
+            LogError("overlay is not enabled");
+            return;
+        }
+
         discord.GetOverlayManager().OpenVoiceSettings(res =>
         {
             if (res != Result.Ok)
                 LogError("open voice settings failed: " + res);
+        });
+    }
+
+    public void OpenActivityInvite()
+    {
+        //if (!discord.GetOverlayManager().IsEnabled())
+        //{
+        //    LogError("overlay is not enabled");
+        //    return;
+        //}
+
+        discord.GetOverlayManager().OpenActivityInvite(ActivityActionType.Join, res =>
+        {
+            if (res != Result.Ok)
+                LogError("open activity invite failed: " + res);
+            else
+                Log("open activity invite success");
         });
     }
 }
