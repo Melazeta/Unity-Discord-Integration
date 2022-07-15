@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class DiscordTest : MonoBehaviour
 {
+    public Text feedbackUi;
     public Text errorUi;
     public InputField detailsInput;
     public RawImage avatarImage;
@@ -19,8 +20,8 @@ public class DiscordTest : MonoBehaviour
     {
         var id = 973975457601028126;
         discord = new Discord.Discord(id, (UInt64)Discord.CreateFlags.Default);
-        Debug.Log("init: " + discord);
 
+        feedbackUi.text = string.Empty;
         errorUi.text = string.Empty;
 
         LogDiscordUser();
@@ -39,16 +40,30 @@ public class DiscordTest : MonoBehaviour
         discord.Dispose();
     }
 
+    private void Log(string message)
+    {
+        Debug.Log(message);
+        feedbackUi.text = message;
+        errorUi.text = string.Empty;
+    }
+
+    private void LogError(string message)
+    {
+        Debug.LogError(message);
+        errorUi.text = message;
+        feedbackUi.text = string.Empty;
+    }
+
     private void LogDiscordUser()
     {
         try
         {
             var user = discord.GetUserManager().GetCurrentUser();
-            Debug.Log($"{user.Id}, {user.Username} {user.Avatar}");
+            Log($"{user.Id}, {user.Username} {user.Avatar}");
         }
         catch (ResultException)
         {
-            Debug.Log("discord user not ready");
+            Log("discord user not ready");
         }
     }
 
@@ -86,7 +101,7 @@ public class DiscordTest : MonoBehaviour
             res =>
             {
                 if (res != Discord.Result.Ok)
-                    errorUi.text = "error updating activity: " + res;
+                    LogError("error updating activity: " + res);
             }
         );
     }
@@ -96,7 +111,7 @@ public class DiscordTest : MonoBehaviour
         discord.GetActivityManager().ClearActivity(res =>
         {
             if (res != Discord.Result.Ok)
-                errorUi.text = "error clearing activity: " + res;
+                LogError("error clearing activity: " + res);
         });
     }
 
@@ -114,13 +129,13 @@ public class DiscordTest : MonoBehaviour
         {
             if (result != Result.Ok)
             {
-                Debug.LogError("create lobby failed: " + result);
+                LogError("create lobby failed: " + result);
                 return;
             }
 
             this.lobby = lobby;
 
-            Debug.Log("create lobby success, id: " + lobby.Id);
+            Log("create lobby success, id: " + lobby.Id);
         });
     }
 
@@ -128,7 +143,7 @@ public class DiscordTest : MonoBehaviour
     {
         if (lobby == null)
         {
-            Debug.Log("no lobby to update");
+            Log("no lobby to update");
             return;
         }
 
@@ -138,9 +153,9 @@ public class DiscordTest : MonoBehaviour
         discord.GetLobbyManager().UpdateLobby(lobby.Value.Id, transaction, result =>
         {
             if (result != Result.Ok)
-                Debug.LogError("update lobby failed: " + result);
+                LogError("update lobby failed: " + result);
             else
-                Debug.Log("update lobby success");
+                Log("update lobby success");
         });
     }
 
@@ -148,7 +163,7 @@ public class DiscordTest : MonoBehaviour
     {
         if (lobby == null)
         {
-            Debug.Log("no lobby to delete");
+            Log("no lobby to delete");
             return;
         }
 
@@ -156,11 +171,11 @@ public class DiscordTest : MonoBehaviour
         {
             if (result != Result.Ok)
             {
-                Debug.LogError("delete lobby failed: " + result);
+                LogError("delete lobby failed: " + result);
                 return;
             }
 
-            Debug.Log("delete lobby success");
+            Log("delete lobby success");
             lobby = null;
         });
     }
@@ -169,16 +184,16 @@ public class DiscordTest : MonoBehaviour
     {
         if (lobby == null)
         {
-            Debug.Log("no lobby to connect voice");
+            Log("no lobby to connect voice");
             return;
         }
 
         discord.GetLobbyManager().ConnectVoice(lobby.Value.Id, res =>
         {
             if (res == Result.Ok)
-                Debug.Log("voice connected");
+                Log("voice connected");
             else
-                Debug.LogError("voice connection failed: " + res);
+                LogError("voice connection failed: " + res);
         });
     }
 
@@ -186,16 +201,16 @@ public class DiscordTest : MonoBehaviour
     {
         if (lobby == null)
         {
-            Debug.Log("no lobby to disconnect voice");
+            Log("no lobby to disconnect voice");
             return;
         }
 
         discord.GetLobbyManager().DisconnectVoice(lobby.Value.Id, res =>
         {
             if (res == Result.Ok)
-                Debug.Log("voice disconnected");
+                Log("voice disconnected");
             else
-                Debug.LogError("voice disconnection failed: " + res);
+                LogError("voice disconnection failed: " + res);
         });
     }
 
@@ -204,7 +219,7 @@ public class DiscordTest : MonoBehaviour
         discord.GetOverlayManager().OpenVoiceSettings(res =>
         {
             if (res != Result.Ok)
-                Debug.LogError("open voice settings failed: " + res);
+                LogError("open voice settings failed: " + res);
         });
     }
 }
