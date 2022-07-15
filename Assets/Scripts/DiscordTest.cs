@@ -13,6 +13,9 @@ public class DiscordTest : MonoBehaviour
     public InputField detailsInput;
     public RawImage avatarImage;
 
+    public Transform relationshipsParent;
+    public GameObject relationshipPrefab;
+
     [SerializeReference]
     Discord.Discord discord;
 
@@ -29,6 +32,8 @@ public class DiscordTest : MonoBehaviour
 
         discord.GetUserManager().OnCurrentUserUpdate += LogDiscordUser;
         discord.GetUserManager().OnCurrentUserUpdate += FetchImage;
+
+        discord.GetRelationshipManager().OnRefresh += OnRelationshipRefresh;
     }
 
     private void Update()
@@ -261,5 +266,28 @@ public class DiscordTest : MonoBehaviour
             else
                 Log("open activity invite success");
         });
+    }
+
+    private void OnRelationshipRefresh()
+    {
+        foreach (Transform child in relationshipsParent)
+            Destroy(child.gameObject);
+
+        var manager = discord.GetRelationshipManager();
+
+        try
+        {
+            for (uint i = 0; i < manager.Count(); i++)
+            {
+                var instance = Instantiate(relationshipPrefab);
+                instance.GetComponentInChildren<Text>().text = manager.GetAt(i).User.Username;
+                //instance.GetComponentInChildren<Image>().sprite = manager.GetAt(i).User.ava
+            }
+        }
+        catch (ResultException ex)
+        {
+            LogError("error showing relationships: " + ex.Message);
+            throw;
+        }
     }
 }
