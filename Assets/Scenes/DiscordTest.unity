@@ -2054,7 +2054,7 @@ MonoBehaviour:
   detailsInput: {fileID: 774066151}
   avatarImage: {fileID: 311363169}
   relationshipsParent: {fileID: 2102479709}
-  relationshipPrefab: {fileID: 8862525070489729209, guid: 31f1800a5b667ba498e20a32b61422db, type: 3}
+  relationshipPrefab: {fileID: 5667255908910390340, guid: 31f1800a5b667ba498e20a32b61422db, type: 3}
   discord:
     id: 0
   references:

@@ -14,7 +14,7 @@ public class DiscordTest : MonoBehaviour
     public RawImage avatarImage;
 
     public Transform relationshipsParent;
-    public GameObject relationshipPrefab;
+    public RelationshipEntry relationshipPrefab;
 
     [SerializeReference]
     Discord.Discord discord;
@@ -288,14 +288,15 @@ public class DiscordTest : MonoBehaviour
         {
             for (uint i = 0; i < manager.Count(); i++)
             {
-                var instance = Instantiate(relationshipPrefab, relationshipsParent);
-                var user = manager.GetAt(i).User;
+                RelationshipEntry instance = Instantiate(relationshipPrefab, relationshipsParent);
+                var relationship = manager.GetAt(i);
 
-                instance.GetComponentInChildren<Text>().text = user.Username;
-                FetchUserImage(user.Id, (res, texture) =>
+                instance.usernameText.text = relationship.User.Username;
+                instance.activityText.text = relationship.Presence.Activity.Name;
+                FetchUserImage(relationship.User.Id, (res, texture) =>
                 {
                     Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-                    instance.GetComponentInChildren<Image>().sprite = sprite;
+                    instance.userImage.sprite = sprite;
                 });
             }
         }
