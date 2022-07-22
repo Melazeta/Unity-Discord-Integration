@@ -126,7 +126,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8862525072183525761}
   - component: {fileID: 8862525072183525767}
-  - component: {fileID: 8862525072183525766}
+  - component: {fileID: 2529342810329177550}
   m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
@@ -141,13 +141,13 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8862525072183525760}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8862525070489729214}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
   m_AnchorMin: {x: 0.8, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
@@ -161,7 +161,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8862525072183525760}
   m_CullTransparentMesh: 1
---- !u!114 &8862525072183525766
+--- !u!114 &2529342810329177550
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

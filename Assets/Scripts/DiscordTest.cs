@@ -2,8 +2,8 @@ using Discord;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class DiscordTest : MonoBehaviour
@@ -31,7 +31,7 @@ public class DiscordTest : MonoBehaviour
         LogDiscordUser();
 
         discord.GetUserManager().OnCurrentUserUpdate += LogDiscordUser;
-        discord.GetUserManager().OnCurrentUserUpdate += FetchImage;
+        discord.GetUserManager().OnCurrentUserUpdate += FetchCurrentUserImage;
 
         discord.GetRelationshipManager().OnRefresh += OnRelationshipRefresh;
     }
@@ -73,26 +73,33 @@ public class DiscordTest : MonoBehaviour
         }
     }
 
-    private void FetchImage()
+    private void FetchCurrentUserImage()
     {
         var user = discord.GetUserManager().GetCurrentUser();
+        FetchUserImage(user.Id, (res, texture) => avatarImage.texture = texture);
+    }
+
+    private void FetchUserImage(long userId, UnityAction<Result, Texture2D> callback)
+    {
         discord.GetImageManager().Fetch(
             new ImageHandle()
             {
-                Id = user.Id,
+                Id = userId,
                 Size = 512,
             },
             refresh: false,
             (res, handle) =>
             {
+                Texture2D texture = null;
+
                 if (res == Result.Ok)
-                {
-                    var texture = discord.GetImageManager().GetTexture(handle);
-                    avatarImage.texture = texture;
-                }
+                     texture = discord.GetImageManager().GetTexture(handle);
+                else
+                    LogError($"error fetching image of user {userId}: {res}");
+
+                callback?.Invoke(res, texture);
             }
         );
-
     }
 
     public void UpdateActivity()
@@ -275,13 +282,21 @@ public class DiscordTest : MonoBehaviour
 
         var manager = discord.GetRelationshipManager();
 
+        manager.Filter((ref Relationship relationship) => true);
+
         try
         {
             for (uint i = 0; i < manager.Count(); i++)
             {
-                var instance = Instantiate(relationshipPrefab);
-                instance.GetComponentInChildren<Text>().text = manager.GetAt(i).User.Username;
-                //instance.GetComponentInChildren<Image>().sprite = manager.GetAt(i).User.ava
+                var instance = Instantiate(relationshipPrefab, relationshipsParent);
+                var user = manager.GetAt(i).User;
+
+                instance.GetComponentInChildren<Text>().text = user.Username;
+                FetchUserImage(user.Id, (res, texture) =>
+                {
+                    Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                    instance.GetComponentInChildren<Image>().sprite = sprite;
+                });
             }
         }
         catch (ResultException ex)
