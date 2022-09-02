@@ -2,6 +2,7 @@ using Discord;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -93,7 +94,7 @@ public class DiscordTest : MonoBehaviour
                 Texture2D texture = null;
 
                 if (res == Result.Ok)
-                     texture = discord.GetImageManager().GetTexture(handle);
+                    texture = discord.GetImageManager().GetTexture(handle);
                 else
                     LogError($"error fetching image of user {userId}: {res}");
 
@@ -305,5 +306,49 @@ public class DiscordTest : MonoBehaviour
             LogError("error showing relationships: " + ex.Message);
             throw;
         }
+    }
+
+    [ContextMenu("Test storage")]
+    private void TestStorage()
+    {
+        var storageManager = discord.GetStorageManager();
+
+        // Create some nonsense data
+        var contents = new byte[20000];
+        var random = new System.Random();
+        random.NextBytes(contents);
+
+        // Write the data asynchronously
+        storageManager.WriteAsync("foo", contents, res =>
+        {
+            // Get our list of files and iterate over it
+            for (int i = 0; i < storageManager.Count(); i++)
+            {
+                var file = storageManager.StatAt(i);
+                Log($"file: {file.Filename} size: {file.Size} last_modified: {file.LastModified}");
+            }
+
+            // Let's read just a small chunk of data from the "foo" key
+            storageManager.ReadAsyncPartial("foo", 400, 50, (result, data) =>
+            {
+                Log($"partial contents of foo match {Enumerable.SequenceEqual(data, new ArraySegment<byte>(contents, 400, 50))}");
+            });
+
+            // Now let's read all of "foo"
+            storageManager.ReadAsync("foo", (result, data) =>
+            {
+                Log($"length of contents {contents.Length} data {data.Length}");
+                Log($"contents of foo match {Enumerable.SequenceEqual(data, contents)}");
+
+                // We just read it, but let's make sure "foo" exists
+                Log($"foo exists? {storageManager.Exists("foo")}");
+
+                // Now delete it
+                storageManager.Delete("foo");
+
+                // Make sure it was deleted
+                Log($"post-delete foo exists? {storageManager.Exists("foo")}");
+            });
+        });
     }
 }
