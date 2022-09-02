@@ -309,7 +309,7 @@ public class DiscordTest : MonoBehaviour
     }
 
     [ContextMenu("Test storage")]
-    private void TestStorage()
+    public void TestStorage()
     {
         var storageManager = discord.GetStorageManager();
 
