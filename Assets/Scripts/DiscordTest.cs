@@ -1,4 +1,5 @@
 using Discord;
+using MZ.Rest;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,6 +10,8 @@ using UnityEngine.UI;
 
 public class DiscordTest : MonoBehaviour
 {
+    public Postman postman;
+
     public Text feedbackUi;
     public Text errorUi;
     public InputField detailsInput;
@@ -17,13 +20,16 @@ public class DiscordTest : MonoBehaviour
     public Transform relationshipsParent;
     public RelationshipEntry relationshipPrefab;
 
+    public InputField sendMessageInput;
+
     [SerializeReference]
     Discord.Discord discord;
 
     // Start is called before the first frame update
     void Start()
     {
-        var id = 973975457601028126;
+        //var id = 973975457601028126;
+        var id = 1016643780968988733;  // TODO: inserire un id sensato
         discord = new Discord.Discord(id, (UInt64)Discord.CreateFlags.Default);
 
         feedbackUi.text = string.Empty;
@@ -311,6 +317,9 @@ public class DiscordTest : MonoBehaviour
     [ContextMenu("Test storage")]
     public void TestStorage()
     {
+        // copiato e adattato da:
+        // https://discord.com/developers/docs/game-sdk/storage#example-saving-reading-deleting-and-checking-data
+
         var storageManager = discord.GetStorageManager();
 
         // Create some nonsense data
@@ -350,5 +359,55 @@ public class DiscordTest : MonoBehaviour
                 Log($"post-delete foo exists? {storageManager.Exists("foo")}");
             });
         });
+    }
+
+    [ContextMenu("Send message to server")]
+    public void SendMessageToServer()
+    {
+        string text = "test from C#";
+
+        if (sendMessageInput != null && !string.IsNullOrEmpty(sendMessageInput.text))
+            text = sendMessageInput.text;
+
+        postman.Post<object>(
+            "https://discordapp.com/api/webhooks/1016614603561635861/KmTa1w0yYnCAMdud_oHRicQOsIFSU3qc9-dl0q3Cd3ulw5Oljr7IvUpvDGmrOC1_NrNi",
+            json: new
+            {
+                username = "Bot Name",  // questo sovrascrive il nome del bot
+                content = text,
+            },
+            callback: resposne =>
+            {
+                if (resposne.IsSuccessful())
+                    Log("message sent succesfully");
+                else
+                    LogError("message send failed");
+            }
+        );
+    }
+
+    [ContextMenu("Get messages from server channel")]
+    public void GetMessagesFromServerChannel()
+    {
+        long channelId = 1016614524066988106;
+
+        // premission: 75776
+
+        // token: MTAxNjY0Mzc4MDk2ODk4ODczMw.G1HZgC.38XiNj92TSxjRdXEVh11nV2mDqADXCbvQW8kRk
+
+        postman.Get<object>(
+            $"https://discordapp.com/api/channels/{channelId}/messages",
+            new Dictionary<string, string>()
+            {
+                { "Authorization", "Bot MTAxNjY0Mzc4MDk2ODk4ODczMw.G1HZgC.38XiNj92TSxjRdXEVh11nV2mDqADXCbvQW8kRk" }
+            },
+            callback: response =>
+            {
+                if (!response.IsSuccessful())
+                    LogError("get messages failed: " + response.ToString());
+                else
+                    Log("got messages: " + response.ToString());
+            }
+        );
     }
 }
