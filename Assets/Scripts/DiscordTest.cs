@@ -29,7 +29,7 @@ public class DiscordTest : MonoBehaviour
     void Start()
     {
         //var id = 973975457601028126;
-        var id = 1016643780968988733;  // TODO: inserire un id sensato
+        var id = 1016643780968988733;  // TODO: inserire l'id della propria applicazione discord
         discord = new Discord.Discord(id, (UInt64)Discord.CreateFlags.Default);
 
         feedbackUi.text = string.Empty;
@@ -370,6 +370,7 @@ public class DiscordTest : MonoBehaviour
             text = sendMessageInput.text;
 
         postman.Post<object>(
+            // TODO: impostare un webhook valido 
             "https://discordapp.com/api/webhooks/1016614603561635861/KmTa1w0yYnCAMdud_oHRicQOsIFSU3qc9-dl0q3Cd3ulw5Oljr7IvUpvDGmrOC1_NrNi",
             json: new
             {
@@ -389,16 +390,15 @@ public class DiscordTest : MonoBehaviour
     [ContextMenu("Get messages from server channel")]
     public void GetMessagesFromServerChannel()
     {
+        // TODO: impostare l'id di un canale di un server
         long channelId = 1016614524066988106;
-
-        // premission: 75776
-
-        // token: MTAxNjY0Mzc4MDk2ODk4ODczMw.G1HZgC.38XiNj92TSxjRdXEVh11nV2mDqADXCbvQW8kRk
 
         postman.Get<object>(
             $"https://discordapp.com/api/channels/{channelId}/messages",
             new Dictionary<string, string>()
             {
+                // TODO: inserire il token del bot preso dall'applicazione discord
+                // N.B. occhio che se viene fatto il push del token su una repo pubblica discord effettua il reset del token
                 { "Authorization", "Bot MTAxNjY0Mzc4MDk2ODk4ODczMw.G1HZgC.38XiNj92TSxjRdXEVh11nV2mDqADXCbvQW8kRk" }
             },
             callback: response =>
